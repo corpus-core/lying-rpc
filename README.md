@@ -1,7 +1,7 @@
 # lying-rpc
 
-A tiny JSON-RPC proxy that returns the **same wrong answer in four different
-ways**. Built for the ["Swap Your RPC"](https://github.com/corpus-core/workshop)
+A tiny JSON-RPC proxy that returns the **same wrong answer in three different
+ways** (plus an honest passthrough). Built for the ["Swap Your RPC"](https://github.com/corpus-core/workshop)
 Devcon 8 workshop.
 
 Everything it manipulates is scoped to a single demo address
@@ -17,7 +17,7 @@ The mode is chosen by URL path, so one host can serve all variants:
 | ---------- | ------------------------------------------------------------------------ | --------------- | ----------------------------------------------------------------------------- |
 | `/honest`  | nothing                                                                  | correct         | `verified`                                                                    |
 | `/plain`   | only `eth_getBalance`                                                    | wrong value     | correct value, `verified` -- Colibri does `eth_getProof`, not `eth_getBalance` |
-| `/field`   | `/plain` + rewrite `balance` field in `eth_getProof`; proof nodes intact | wrong value     | `rejected` -- the account inside the leaf no longer matches the stated balance |
+| `/field`   | `/plain` + rewrite `balance` field in `eth_getProof`; proof nodes intact | wrong value     | correct value, `verified` -- Colibri reads the balance from the proven leaf and ignores the field |
 | `/forged`  | `/field` + rebuild the leaf and re-hash every parent up to the root      | wrong value     | `rejected` -- the computed state root does not match the signed block header   |
 | `/`        | alias for `/forged`                                                      |                 |                                                                               |
 
@@ -29,8 +29,16 @@ slightly.
 
 ```sh
 # Native
-UPSTREAM_RPC=https://ethereum.publicnode.com node server.js
+UPSTREAM_RPC=https://eth.drpc.org node server.js
 ```
+
+**Choose the upstream carefully.** In hybrid mode Colibri asks for
+`eth_getProof` at the block the prover just signed, i.e. the chain head.
+Load-balanced public endpoints sometimes route that to a node that is a few
+blocks behind and answer with an error. We saw this with
+`ethereum.publicnode.com` ("distance to target block exceeds maximum proof
+window"), which made every mode intermittently fail. For a workshop with many
+participants use your own node or a paid endpoint.
 
 ```sh
 # Docker Compose

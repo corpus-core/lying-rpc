@@ -10,13 +10,14 @@
 //   /honest   - pass-through, nothing changed
 //   /plain    - rewrite only eth_getBalance   (wrong without any proof)
 //   /field    - plain + rewrite the `balance` field in the eth_getProof answer
-//               but leave the Merkle nodes alone                 (proof mismatch)
+//               but leave the Merkle nodes alone  (fools naive proof consumers;
+//               Colibri reads the leaf and ignores the field)
 //   /forged   - field + rebuild the account leaf and re-hash all parent nodes
 //               up to the state root                       (root mismatch)
 //   /         - alias for /forged
 //
 // Start with:
-//   UPSTREAM_RPC=https://ethereum.publicnode.com node server.js
+//   UPSTREAM_RPC=https://eth.drpc.org node server.js
 // Listens on PORT (default 8545).
 
 import http from "node:http";
@@ -173,7 +174,9 @@ function logRpc(mode, call) {
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin":  "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+  // "*" rather than a list: Colibri adds e.g. `Cache-Control: max-age=...` to
+  // requests for the latest block, and a stricter list makes the browser drop them.
+  "Access-Control-Allow-Headers": "*",
   "Access-Control-Max-Age":       "86400",
 };
 
