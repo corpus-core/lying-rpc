@@ -1,0 +1,17 @@
+{
+  "name": "lying-rpc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A tiny JSON-RPC proxy that returns subtly wrong answers for one demo address. For the \"Swap Your RPC\" Devcon workshop.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20.19"
+  },
+  "dependencies": {
+    "@ethereumjs/rlp": "^10.1.3",
+    "@noble/hashes": "^2.4.0"
+  }
+}

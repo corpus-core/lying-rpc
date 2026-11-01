@@ -1,0 +1,16 @@
+# Example compose file for the lying RPC.
+# Not a production manifest; for the Devcon workshop one container is enough.
+#
+#   docker compose up --build
+#
+# then point the workshop app at http://localhost:8545/plain (etc.).
+
+services:
+  lying-rpc:
+    build: .
+    ports:
+      - "8545:8545"
+    environment:
+      # Any public Ethereum mainnet RPC that serves eth_getProof works.
+      UPSTREAM_RPC: https://ethereum.publicnode.com
+    restart: unless-stopped
